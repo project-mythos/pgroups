@@ -1,0 +1,108 @@
+package PGroups
+
+import Datastore.{Key, Store, MapStore}
+import com.twitter.util.{Future, Await}
+import Enki.PipeOps._
+import Enkidu.Node
+
+
+class ServiceSuite {
+  val Table = Util.makeTable("A")
+  val Svc = new Endpoints(Table)
+
+
+  val keys = List(
+    Key("file_servers"),
+    Key("database_servers"),
+    Key("app_servers"),
+    Key("useless")
+  )
+
+
+
+  object Helpers {
+
+   
+    def add(key: Key, node: Node) = {
+      val f = Client.group_update_msg("pgroups/add", key, node: Node) |> Svc.add
+      f map {x => Client.decode_set(x) }
+    }
+
+    def remove(key: Key, node: Node) = {
+      val f =  Client.group_update_msg("pgroups/remove", key, node) |> Svc.remove
+      f map {x => Client.decode_set(x) }
+    }
+
+    def create(key: Key) = {
+      Client.group_status_msg("pgroups/create", key) |> Svc.create
+    }
+
+    def delete(key: Key) = {
+      Client.group_status_msg("pgroups/delete", key) |> Svc.delete 
+    }
+
+
+  }
+
+
+
+
+  test("Creation and Destruction") {
+    val reps = keys.map { x =>
+      Helpers.create(key)
+    }
+
+
+    Await.result (
+      Future.collect(reps)
+    )
+
+
+    val del_f =
+      Helpers.delete(Key("useless") )
+
+    Await.result(del_f) 
+
+    assert(
+      Table.S.exists( Key("useless") ) == false 
+    )
+
+
+  }
+
+
+  test("Group Updates") {
+
+    val key = Key( "file_servers" )
+    SVC.add(req1)
+
+    val members = List.fill(10)(Util.nextNode)
+
+    Future.collect {
+      members.map {x => Helpers.add(x) }
+    } |> Await.result
+
+
+    val got = Table.query( Key("file_servers") )
+    assert(got == members.toSet)
+
+    val bad_host = members(9) 
+
+    Await.result(
+      Helpers.remove(bad_host)
+    )
+
+
+    assert(
+      Table.query(key).contains(bad_host) == false 
+    )
+
+  }
+
+
+
+
+ 
+
+
+}

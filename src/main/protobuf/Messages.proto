@@ -1,0 +1,21 @@
+syntax="proto2";
+package PGroups;
+
+
+
+
+message TBL {
+  map<string, bytes> state = 1;
+}
+
+
+message Request {
+  required string path = 1;
+  required bytes body = 2; 
+}
+
+message Response {
+  required bool status = 1;
+  required bytes body = 2; 
+}
+
