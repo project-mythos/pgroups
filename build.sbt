@@ -39,7 +39,7 @@ lazy val test_deps = Seq(
   "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 )
 
-lazy val cluster_test = ( project in file("cluster-test") )
+lazy val testnet = ( project in file("cluster-test") )
   .dependsOn(pgroups)
   .settings(
     commonSettings,
@@ -53,7 +53,7 @@ lazy val cluster_test = ( project in file("cluster-test") )
 
 
 def test_cluster() = Command.command("test-cluster") { state =>
-  "project cluster_test" ::
+  "project testnet" ::
   "assembly" ::
   "test" ::
   "project pgroups" :: 

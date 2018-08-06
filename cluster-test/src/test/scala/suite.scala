@@ -55,11 +55,13 @@ class EndpointsSuite extends FunSuite {
   val nodes = new ServerList( makeNodes(3000, 5) )
   val CM = Helpers.makeCM() 
 
-  val PG = new Client(nodes, CM)
+  
 
 
   val srv = "cluster-test/run.sh".run
   Thread.sleep(2000)
+
+  val PG = new Client(nodes, CM)
 
 
   test("Runs updates") {
